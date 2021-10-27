@@ -24,13 +24,10 @@ class TopicDataset(Dataset):
         """ returns one sample of the dataset """
         seq_ids = self.data_x[idx]
         
-        if self.seq_len == 1:
-            x = self.id2chunk[seq_ids].vector
-        else:
-            # create an array first to avoid stacking
-            x = cp.zeros((self.seq_len, self.n_features), dtype='float32')
-            for i in range(self.seq_len):
-                x[i] = self.id2chunk[seq_ids[i]].vector
+        # create an array first to avoid stacking
+        x = cp.zeros((self.seq_len, self.n_features), dtype='float32')
+        for i in range(self.seq_len):
+            x[i] = self.id2chunk[seq_ids[i]].vector
 
         y = self.data_y[idx]
         return x, y, seq_ids
@@ -133,7 +130,7 @@ def train(model, dataloader, epochs=10, lr=0.01, clip_value=1.0):
             state_h = state_h.detach()
             state_c = state_c.detach()
 
-            loss = criterion(output.transpose(1,2), y.unsqueeze(1))
+            loss = criterion(output.transpose(1,2), y)
             loss.backward()
             
             # prevent the exploding gradient problem
@@ -158,9 +155,12 @@ def predict(model, dataloader, dictionary):
         preds, (state_h, state_c) = model(x, (state_h, state_c))
         state_h = state_h.detach()
         state_c = state_c.detach()
-       
-        preds = softmax(preds.squeeze(1)).argmax(-1)
-        for y_true, y_pred in zip(y, preds):
+
+        preds = softmax(preds.squeeze(1)).argmax(-1).cpu().numpy()
+        prev_topics = [[vocab[idx].lower_ for idx in seq] for seq in prev_ids]
+        preds = [seq if isinstance(seq, np.integer) else seq[-1] for seq in preds]
+        preds = [vocab[chunk_idx].lower_ for chunk_idx in preds]
+        for discussed, new_topic in zip(prev_topics, preds):
             print('After --{}--, I suggest discussing --{}--'.format(
-                    dictionary[y_true], dictionary[y_pred]))
+                    ", ".join(discussed), new_topic))
         break
