@@ -145,7 +145,7 @@ def train(model, dataloader, epochs=10, lr=0.01, clip_value=1.0):
         progress_bar.close()
 
 
-def predict(model, dataloader, dictionary):
+def predict(model, dataloader, vocab):
     """ temp: use only the first batch """
     model.eval()
     state_h, state_c = model.init_state(dataloader.batch_size)
