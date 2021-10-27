@@ -113,9 +113,7 @@ class SequenceGenerator():
         for seq in seqs:
             # to be modified for pre-sequences larger than 1
             pre_ids = [self.chunk2id[chunk_id] for chunk_id in seq[:-1]]
-            pre_ids = pre_ids[0] if self.seq_len == 1 else pre_ids
             post_ids = [self.chunk2id[chunk_id] for chunk_id in seq[1:]]
-            post_ids = post_ids[0] if self.seq_len == 1 else post_ids
             
             sequences.append([pre_ids, post_ids])
         
