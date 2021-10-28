@@ -83,7 +83,7 @@ class GModel(nn.Module):
         x: tensor of (seq_len, batch_size, input_size)
         states: tuple of tensors (hidden_state, cell_state)
         """
-        lstm_output, (state_h, state_c) = self.lstm(x)
+        lstm_output, (state_h, state_c) = self.lstm(x, prev_states)
         # pass hidden state to a fully connected layer
         logits = self.linear(lstm_output)
         return logits, (state_h, state_c)
