@@ -56,13 +56,14 @@ class TopicDataset(Dataset):
 
 
 class GModel(nn.Module):
-    def __init__(self, vocab_size, num_layers=1, seq_len=1, bidirectional=False):
+    def __init__(self, vocab_size, num_layers=1, seq_len=1, 
+                 hidden_size=128, bidirectional=False):
         super(GModel, self).__init__()
         self.vocab_size = vocab_size
         self.seq_len = seq_len
         self.embedding_dim = 300
         self.D = 2 if bidirectional else 1
-        self.hidden_size = self.D*128
+        self.hidden_size = self.D*hidden_size
         self.num_layers=num_layers
  
         # vectors are received from Spacy noun chunks (averaged token vectors)
