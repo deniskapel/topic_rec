@@ -22,4 +22,12 @@ Pipeline:
 
 5. For the demosntration purposes, predict() is using both original dict and the one generated for the new dataset. It will allow to compare the original tokens, predictions and targets.
 
+
+To explore in the future:
+
+* Cluster themes and save centroids
+* Train smaller models for each theme
+* When a new sample comes, based on its vector and the centroids, find the most relevant theme and use its model
+* Compare the results of out-of-domain cases with outputs given by a single model only
+
 TODO: refactor to allow switching between bidirectional and forwad-only LSTM
