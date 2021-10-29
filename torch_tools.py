@@ -160,34 +160,34 @@ def train(model, dataloader, epochs=10, lr=0.01, clip_value=1.0):
         progress_bar.close()
 
 
-        def predict(model, dataloader, old_vocab:list, new_vocab:list):
-            """
-            designed for demostration purposes
-            model: a trained Torch model
-            dataloader: Torch Dataloader
-            old_vocab: an id2chunk list generated from a training set
-            new_vocab: an id2chunk list generated from a test set
+def predict(model, dataloader, old_vocab:list, new_vocab:list):
+    """
+    designed for demostration purposes
+    model: a trained Torch model
+    dataloader: Torch Dataloader
+    old_vocab: an id2chunk list generated from a training set
+    new_vocab: an id2chunk list generated from a test set
 
-            Passing a new vocab is useful when a test set comes from a different
-            domain and vocab units are not included in the original vocab list
-            """
-            model.eval()
-            state_h, state_c = model.init_state(dataloader.batch_size)
-            softmax = nn.Softmax(dim=-1)
+    Passing a new vocab is useful when a test set comes from a different
+    domain and vocab units are not included in the original vocab list
+    """
+    model.eval()
+    state_h, state_c = model.init_state(dataloader.batch_size)
+    softmax = nn.Softmax(dim=-1)
 
-            for x, y, prev_ids in dataloader:
-                preds, (state_h, state_c) = model(x, (state_h, state_c))
-                state_h = state_h.detach()
-                state_c = state_c.detach()
+    for x, y, prev_ids in dataloader:
+        preds, (state_h, state_c) = model(x, (state_h, state_c))
+        state_h = state_h.detach()
+        state_c = state_c.detach()
 
-                prev_topics = [[new_vocab[idx].lower_ for idx in seq] for seq in prev_ids]
-                ys = [new_vocab[idx] for idx in y.cpu().numpy()[:,-1]]
+        prev_topics = [[new_vocab[idx].lower_ for idx in seq] for seq in prev_ids]
+        ys = [new_vocab[idx] for idx in y.cpu().numpy()[:,-1]]
 
-                preds = softmax(preds.squeeze(1)).argmax(-1).cpu().numpy()
-                preds = [seq if isinstance(seq, np.integer) else seq[-1] for seq in preds]
-                preds = [old_vocab[chunk_idx].lower_ for chunk_idx in preds]
+        preds = softmax(preds.squeeze(1)).argmax(-1).cpu().numpy()
+        preds = [seq if isinstance(seq, np.integer) else seq[-1] for seq in preds]
+        preds = [old_vocab[chunk_idx].lower_ for chunk_idx in preds]
 
-                for discussed, new_topic, real_value in zip(prev_topics, preds, ys):
-                    print('SEQ: {}, PRED: {}, TRUE: {}'.format(
-                            ", ".join(discussed), new_topic, real_value))
-                break
+        for discussed, new_topic, real_value in zip(prev_topics, preds, ys):
+            print('SEQ: {}, PRED: {}, TRUE: {}'.format(
+                    ", ".join(discussed), new_topic, real_value))
+        break
